@@ -7,7 +7,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 var clientConfig = new ClientConfig()
 {
-	BootstrapServers = builder.Configuration["Kafka:ClientConfigs:BootstrapServers"]
+	BootstrapServers = builder.Configuration["BootstrapServers"]
 };
 
 var consumerConfig = new ConsumerConfig(clientConfig)
