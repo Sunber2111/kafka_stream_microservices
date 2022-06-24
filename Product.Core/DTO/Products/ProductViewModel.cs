@@ -1,0 +1,14 @@
+﻿namespace Product.Core.DTO.Products
+{
+    public class ProductViewModel
+    {
+        public Guid Id { get; set; }
+
+        public string Name { get; set; }
+
+        public ProductViewModel()
+        {
+            Id = Guid.NewGuid();
+        }
+    }
+}
