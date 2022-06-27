@@ -1,7 +1,6 @@
 ---
 version: '3.4'
 services:
-
   zookeeper:
     image: confluentinc/cp-zookeeper:latest
     hostname: zookeeper
@@ -11,9 +10,6 @@ services:
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
-    networks:
-      - product-network-name    
-
   broker:
     image: confluentinc/cp-server
     hostname: broker
@@ -27,47 +23,19 @@ services:
       KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:29092,PLAINTEXT_HOST://0.0.0.0:9092
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
       KAFKA_CONFLUENT_LICENSE_TOPIC_REPLICATION_FACTOR: 1
       CONFLUENT_SUPPORT_CUSTOMER_ID: 'anonymous'
-    networks:
-      - product-network-name
-  
-  product-api:
+
+  api:
     container_name: product-api
+    ports:
+      - "6969:6969"
     build:
       context: .
       dockerfile: Product.API/Dockerfile
     environment:
-      ASPNETCORE_ENVIRONMENT: Development
-      ASPNETCORE_URLS: https://*:6969
-      BootstrapServers: PLAINTEXT://broker:29092
-    depends_on:
-      - zookeeper
-      - broker
-    ports:
-      - "6969:6969"
-    networks:
-      - product-network-name
-
-  product-consumer:
-    container_name: product-consumer
-    build:
-      context: .
-      dockerfile: Product.Consumer/Dockerfile
-    environment:
-      ASPNETCORE_ENVIRONMENT: Development
-      ASPNETCORE_URLS: https://*:7171
-      BootstrapServers: PLAINTEXT://broker:29092
-    depends_on:
-      - zookeeper
-      - broker
-    ports:
-      - "7171:7171"
-    networks:
-      - product-network-name
-
-networks:
-  product-network-name:
-    driver: bridge  
+      ASPNETCORE_URLS: http://+:6969
+      Kafka:ClientConfigs:BootstrapServers: 'broker:29092'
